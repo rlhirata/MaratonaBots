@@ -21,9 +21,18 @@ namespace MaratonaBots.Dialogs
     [Serializable]
     //[LuisModel("2be5435f-bf47-4059-a876-493962f6bae9", "3dcc1d6b7a5f48b6a7411bd4a86f62d9")]
     //[LuisModel("2be5435f-bf47-4059-a876-493962f6bae9", "72197ca02c9c4069ab244f142433e465")]
-    [LuisModel("2be5435f-bf47-4059-a876-493962f6bae9", "111b1b9d42ce4ea09e84eb1ae9aa4f90")]
+    //[LuisModel("2be5435f-bf47-4059-a876-493962f6bae9", "111b1b9d42ce4ea09e84eb1ae9aa4f90")]
     public class CotacaoDialog : LuisDialog<object>
     {
+        public CotacaoDialog(ILuisService service) : base(service) { }
+
+        [LuisIntent("Cumprimento")]
+        public async Task Cumprimento(IDialogContext context, LuisResult result)
+        {
+            var moedas = result.Entities?.Select(e => e.Entity);
+            await context.PostAsync("Oi beleza e você?");
+        }
+
         [LuisIntent("None")]
         public async Task None(IDialogContext context, LuisResult result)
         {
@@ -42,10 +51,15 @@ namespace MaratonaBots.Dialogs
             await context.PostAsync("Eu sou um bot e estou sempre aprendendo, por isso tenha paciência comigo!");
         }
 
+        [LuisIntent("Despedida")]
+        public async Task Despedida(IDialogContext context, LuisResult result)
+        {
+            await context.PostAsync("Até breve! Espero ter ajudado e volte sempre ;)");
+        }
+
         [LuisIntent("Cotacao")]
         public async Task Cotação(IDialogContext context, LuisResult result)
         {
-
             var moedas = result.Entities?.Select(e => e.Entity);
             var filtro = string.Join(",", moedas.ToArray());
             var endpoint = $"http://api-cotacoes-maratona-bots.azurewebsites.net/api/Cotacoes/{filtro}";
@@ -65,8 +79,8 @@ namespace MaratonaBots.Dialogs
                 {
                     var json = await response.Content.ReadAsStringAsync();
                     var resultado = JsonConvert.DeserializeObject<Models.Cotacao[]>(json);
-                    var cotacoes = resultado.Select(c => $"{c.Nome}: {c.Valor.ToString("C")}");
-                    await context.PostAsync($"{string.Join(",", cotacoes.ToArray())}");
+                    var cotacoes = resultado.Select(c => $"**{c.Nome}**: {c.Valor.ToString("C")}");
+                    await context.PostAsync($"{string.Join(", ", cotacoes.ToArray())}");
                 }
             }
 
@@ -116,11 +130,5 @@ namespace MaratonaBots.Dialogs
             /////////////////////////////////////////////////////////////////////////////////////////////////////////
         }
 
-        [LuisIntent("Cumprimento")]
-        public async Task Cumprimento(IDialogContext context, LuisResult result)
-        {
-            var moedas = result.Entities?.Select(e => e.Entity);
-            await context.PostAsync("Oi beleza e você?");
-        }
     }
 }

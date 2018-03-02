@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.FormFlow;
+using Microsoft.Bot.Builder.Luis;
 using Microsoft.Bot.Connector;
 
 namespace MaratonaBots
@@ -22,11 +24,24 @@ namespace MaratonaBots
         {
             var culturaUI = Thread.CurrentThread.CurrentUICulture;
             var cultura = Thread.CurrentThread.CurrentCulture;
+            var connector = new ConnectorClient(new Uri(activity.ServiceUrl));
+
+            //Configurar o EndPoint no LUIS
+            var attributes = new LuisModelAttribute(
+                ConfigurationManager.AppSettings["LuisId"],
+                ConfigurationManager.AppSettings["LuisSubscriptionKey"]);
+            var service = new LuisService(attributes);
 
             // codigo para a COTACAO
             if (activity.Type == ActivityTypes.Message)
             {
-                await Conversation.SendAsync(activity, () => new Dialogs.CotacaoDialog());
+                //Colocar os '...' que está digitando
+                var reply = activity.CreateReply();
+                reply.Type = ActivityTypes.Typing;
+                reply.Text = null;
+                await connector.Conversations.ReplyToActivityAsync(reply);
+
+                await Conversation.SendAsync(activity, () => new Dialogs.CotacaoDialog(service));
             }
             else
             {
