@@ -19,9 +19,6 @@ using Newtonsoft.Json;
 namespace MaratonaBots.Dialogs
 {
     [Serializable]
-    //[LuisModel("2be5435f-bf47-4059-a876-493962f6bae9", "3dcc1d6b7a5f48b6a7411bd4a86f62d9")]
-    //[LuisModel("2be5435f-bf47-4059-a876-493962f6bae9", "72197ca02c9c4069ab244f142433e465")]
-    //[LuisModel("2be5435f-bf47-4059-a876-493962f6bae9", "111b1b9d42ce4ea09e84eb1ae9aa4f90")]
     public class CotacaoDialog : LuisDialog<object>
     {
         public CotacaoDialog(ILuisService service) : base(service) { }
